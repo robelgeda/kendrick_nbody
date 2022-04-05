@@ -7,7 +7,7 @@ from os import system as s
 
 if "-c" in argv:
 	# command = "nvcc simXX.cu -o x -lm -arch=compute_30 -O2"
-	command = "nvcc simXXX.cu -o x -lm  -O2"
+	command = "nvcc kendrick.cu -o x -lm  -O2"
 
 	for i in argv[2:]:
 		command = command + " "+i
