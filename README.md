@@ -6,7 +6,7 @@ Kendrick is a n-body simulator is a code to perform collisionless N-body simulat
 
 
 <p float="left">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif" height="280">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" height="280">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" height="280">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif" height="200">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" height="200">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" height="200">
 </p>
