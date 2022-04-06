@@ -83,88 +83,8 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 	return;
 }
 
-__global__ void calcForce2(float4 *pos, float3 *vel, int size, float G, float time_step)
-{
-	int i = blockIdx.x;
-	if(i >= size)
-		return;
-
-	float3 *vi = &vel[i];
-	float4 *pi = &pos[i];
-
-	if(pi->w < 0)
-		return;
-
-	int threads = 1024;
-	__shared__ float3 acc[1024];
-	float x, y, z;
-	float dx, dy, dz, r2, a;
-	float ax, ay, az;
-	int j;
-
-	x = pi->x;
-	y = pi->y;
-	z = pi->z;
-
-    ax = 0.0;
-    ay = 0.0;
-    az = 0.0;
-
-    float4 pj;
-	for(j = threadIdx.x; j < size; j+=threads)
-	{	
-		pj = pos[j];
-		if(j == i || pj.w < 0)
-		{
-			continue;	
-		}
-
-		dx = pj.x - x;
-		dy = pj.y - y;
-		dz = pj.z - z;
-
-		r2 = (dx*dx)+(dy*dy)+(dz*dz)+16;
-		//if(r2 > 10000) continue;
-		a = ((G*pj.w)/(r2))/(sqrtf(r2));
-	            
-        ax += a*dx;
-        ay += a*dy;
-        az += a*dz;
-	}
-	acc[threadIdx.x].x = ax;
-	acc[threadIdx.x].y = ay;
-	acc[threadIdx.x].z = az;
-	__syncthreads();
-
-	if(threadIdx.x == 0){
-		ax = 0.0; ay = 0.0; az = 0.0;
-		for(i = 0; i < threads; i++){
-			ax += acc[i].x;
-			ay += acc[i].y;
-			az += acc[i].z;
-		}
-
-		vi->x = vi->x + ax*time_step;
-		pi->x = pi->x + vi->x*time_step; // + (0.5*ax*(time_step*time_step));
-
-		vi->y = vi->y + ay*time_step;
-		pi->y = pi->y + vi->y*time_step; // + (0.5*ay*(time_step*time_step));
-
-		vi->z = vi->z + az*time_step;
-		pi->z = pi->z + vi->z*time_step; // + (0.5*az*(time_step*time_step));
-
-		if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1000000000000)
-		{
-			pi->w = -1;
-			//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
-			return;
-		}
-	}
-	
-	return;
-}
 ////////////////////////////////////////////////////////////////////////////
-int toFile(float4 *pos)
+int toFile(float4 *pos, float4 *vel)
 {
 	int i;
 	float4 p;
@@ -174,22 +94,38 @@ int toFile(float4 *pos)
 	FILE *fz = fopen("z.dat","a");
 	FILE *fm = fopen("m.dat","a");
 
+	FILE *fvx = fopen("vx.dat","a");
+	FILE *fvy = fopen("vy.dat","a");
+	FILE *fvz = fopen("vz.dat","a");
+
 	for(i = 0; i < size; i++)
 	{
 		p = pos[i];
+		pv = vel[i];
+
 		if(p.w > 0)
 		{
 			fprintf(fx, "%f\t", p.x);
 			fprintf(fy, "%f\t", p.y);
 			fprintf(fz, "%f\t", p.z);
 			fprintf(fm, "%f\t", p.w);
+
+			fprintf(fvx, "%f\t", pv->vx);
+			fprintf(fvy, "%f\t", pv->vy);
+			fprintf(fvz, "%f\t", pv->vz);
 		}
 	}
 	fprintf(fx, "\n");
 	fprintf(fy, "\n");
 	fprintf(fz, "\n");
 	fprintf(fm, "\n");
+
+	fprintf(fvx, "\n");
+	fprintf(fvy, "\n");
+	fprintf(fvz, "\n");
+
 	fclose(fx);fclose(fy);fclose(fz);fclose(fm);
+	fclose(fvx);fclose(fvy);fclose(fvz);
 	return 0;
 }
 
@@ -203,8 +139,10 @@ void clearFile()
 	FILE *fvz = fopen("vz.dat","w");
 	FILE *fm = fopen("m.dat","w");
 
-	fclose(fx);fclose(fy);fclose(fz);fclose(fvx);fclose(fvy);fclose(fvz);fclose(fm);
+	fclose(fx);fclose(fy);fclose(fz);fclose(fm);
+	fclose(fvx);fclose(fvy);fclose(fvz);
 }
+
 ////////////////////////////////////////////////////////////////////////////
 int main(int argc, char  ** argv)
 {
@@ -294,7 +232,8 @@ int main(int argc, char  ** argv)
 		{
 			printf(" %d", (int)t/cut);
 			cudaMemcpy(Hpos, pos, size * sizeof(float4), cudaMemcpyDeviceToHost);
-			toFile(Hpos);
+			cudaMemcpy(Hvel, vel, size * sizeof(float3), cudaMemcpyDeviceToHost);
+			toFile(Hpos, Hvel);
 		}
 
 		printf("\n");
@@ -303,26 +242,3 @@ int main(int argc, char  ** argv)
 	return 0;
 }
 
-
-////////////////////////////////////////////////////////////////////////////
-
-/*
-///////////////////////////////////////
-Tofile:
-	FILE *fvx = fopen("vx.dat","a");
-	FILE *fvy = fopen("vy.dat","a");
-	FILE *fvz = fopen("vz.dat","a");
-
-
-			fprintf(fvx, "%f\t", pvx);
-			fprintf(fvy, "%f\t", p->vy);
-			fprintf(fvz, "%f\t", p->vz);
-
-
-	fprintf(fvx, "\n");
-	fprintf(fvy, "\n");
-	fprintf(fvz, "\n");
-	
-	fclose(fvx);fclose(fvy);fclose(fvz);
-/////////////////////////////////////////
-*/

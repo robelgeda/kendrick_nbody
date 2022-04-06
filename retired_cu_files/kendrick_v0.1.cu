@@ -58,27 +58,107 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 
 		r2 = (dx*dx)+(dy*dy)+(dz*dz); 
 		//if(r2 > 10000) continue;
-		a = ((G*pj.w)/(r2+4))/(sqrtf(r2)+2); 
+		a = ((G*pj.w)/(r2+16))/(sqrtf(r2)+4);
 	            
         ax += a*dx;
         ay += a*dy;
         az += a*dz;
 	}
-
-	pi->x = pi->x + vi->x*time_step + (0.5*ax*(time_step*time_step));
 	vi->x = vi->x + ax*time_step;
+	pi->x = pi->x + vi->x*time_step; //+ (0.5*ax*(time_step*time_step));
 
-	pi->y = pi->y + vi->y*time_step + (0.5*ay*(time_step*time_step));
 	vi->y = vi->y + ay*time_step;
+	pi->y = pi->y + vi->y*time_step; //+ (0.5*ay*(time_step*time_step));
 
-	pi->z = pi->z + vi->z*time_step + (0.5*az*(time_step*time_step));
 	vi->z = vi->z + az*time_step;
+	pi->z = pi->z + vi->z*time_step; //+ (0.5*az*(time_step*time_step));
 
 	if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1000000000000)
 	{
 		pi->w = -1;
 		//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
 		return;
+	}
+	
+	return;
+}
+
+__global__ void calcForce2(float4 *pos, float3 *vel, int size, float G, float time_step)
+{
+	int i = blockIdx.x;
+	if(i >= size)
+		return;
+
+	float3 *vi = &vel[i];
+	float4 *pi = &pos[i];
+
+	if(pi->w < 0)
+		return;
+
+	int threads = 1024;
+	__shared__ float3 acc[1024];
+	float x, y, z;
+	float dx, dy, dz, r2, a;
+	float ax, ay, az;
+	int j;
+
+	x = pi->x;
+	y = pi->y;
+	z = pi->z;
+
+    ax = 0.0;
+    ay = 0.0;
+    az = 0.0;
+
+    float4 pj;
+	for(j = threadIdx.x; j < size; j+=threads)
+	{	
+		pj = pos[j];
+		if(j == i || pj.w < 0)
+		{
+			continue;	
+		}
+
+		dx = pj.x - x;
+		dy = pj.y - y;
+		dz = pj.z - z;
+
+		r2 = (dx*dx)+(dy*dy)+(dz*dz)+16;
+		//if(r2 > 10000) continue;
+		a = ((G*pj.w)/(r2))/(sqrtf(r2));
+	            
+        ax += a*dx;
+        ay += a*dy;
+        az += a*dz;
+	}
+	acc[threadIdx.x].x = ax;
+	acc[threadIdx.x].y = ay;
+	acc[threadIdx.x].z = az;
+	__syncthreads();
+
+	if(threadIdx.x == 0){
+		ax = 0.0; ay = 0.0; az = 0.0;
+		for(i = 0; i < threads; i++){
+			ax += acc[i].x;
+			ay += acc[i].y;
+			az += acc[i].z;
+		}
+
+		vi->x = vi->x + ax*time_step;
+		pi->x = pi->x + vi->x*time_step; // + (0.5*ax*(time_step*time_step));
+
+		vi->y = vi->y + ay*time_step;
+		pi->y = pi->y + vi->y*time_step; // + (0.5*ay*(time_step*time_step));
+
+		vi->z = vi->z + az*time_step;
+		pi->z = pi->z + vi->z*time_step; // + (0.5*az*(time_step*time_step));
+
+		if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1000000000000)
+		{
+			pi->w = -1;
+			//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
+			return;
+		}
 	}
 	
 	return;
@@ -137,7 +217,7 @@ int main(int argc, char  ** argv)
 	std::ifstream inFile(argv[1]);
 
 	inFile >> size >> steps >> box_size >> time_step >> cut;
-	G = G * time_step * time_step;
+	// G = G * time_step * time_step;
 	printf("Size: %d\n", size);
 	printf("Steps: %d\n", steps);
 	printf("Box_size: %f\n", box_size);
@@ -148,7 +228,7 @@ int main(int argc, char  ** argv)
 	///////////////////////////////////////////////////
 	printf("Init\n");
 	clearFile();
-	cudaSetDevice(0);
+	//cudaSetDevice(0);
 	cudaDeviceReset();
 
 	float4 *pos, *Hpos;
@@ -160,14 +240,20 @@ int main(int argc, char  ** argv)
 	cudaError_t rc = cudaMalloc((void**)&pos, size*sizeof(float4));
 	if (rc != cudaSuccess)
 	{
-    	printf("Could not allocate memory 1: %d", rc);
+    	printf("Could not allocate memory 1: %d \n", rc);
+    	printf("%s \n",cudaGetErrorString(cudaGetLastError()));
+    	int v;
+    	cudaRuntimeGetVersion(&v);
+    	printf("Version (%d)", v);
+    	cudaDriverGetVersion(&v);
+    	printf("Version (%d)", v);
     	return 1;
 	}
 
 	rc = cudaMalloc((void**)&vel, size*sizeof(float3));
 	if (rc != cudaSuccess)
 	{
-    	printf("Could not allocate memory 2: %d", rc);
+    	printf("Could not allocate memory 2: %d\n", rc);
     	return 1;
 	}
 
@@ -177,8 +263,8 @@ int main(int argc, char  ** argv)
 	float x, y, z, vx, vy, vz, m;
 	i = 0;
 	while (inFile >> x >> y >> z >> vx >> vy >> vz >> m) {
-		Hpos[i].x = x; Hpos[i].y = y; Hpos[i].z = z; Hpos[i].w = m;
-		Hvel[i].x = vx; Hvel[i].y = vy; Hvel[i].z = vz;
+		Hpos[i].x = x; Hpos[i].y = y;Hpos[i].z = z;Hpos[i].w = m;
+		Hvel[i].x = vx; Hvel[i].y = vy ;Hvel[i].z = vz;
 		i++;		
 	}	
 	printf("%d\n",i);
@@ -191,8 +277,8 @@ int main(int argc, char  ** argv)
 	
 	///////////////////////////////////////////////////
 	printf("GPU\n");
-	int threads = 256;
-	int blocks = 1+(int)size/(int)threads;
+	int threads = 1024;
+	int blocks = (int)size;
 	dim3 grid(blocks,1);
 	dim3 block(threads,1,1);
 
