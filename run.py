@@ -10,7 +10,7 @@ except Exception as e:
 	print("make_points import failed: ", str(e))
 	raise e
 
-G = 0.000864432
+G = 1
 
 def compile(argv):
 	"""Compile Kendrick"""

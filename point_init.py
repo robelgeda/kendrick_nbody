@@ -5,7 +5,7 @@ import numpy as np
 from os import system as s
 
 try:
-    from dist import *
+    import dist
 except Exception as e:
     print("Distro import failed: ", str(e))
     raise e
@@ -16,7 +16,7 @@ def make_points(size, steps, box_size, time_step, cut, G):
     points = []
 
     disk_mass = 10
-    main_mass = 2000
+    main_mass = 4
     total_main_mass = disk_mass + main_mass
 
     #points = [[str(j) for j in [0, 0, 0, 0, 0, 0, total_main_mass]]]
@@ -24,8 +24,8 @@ def make_points(size, steps, box_size, time_step, cut, G):
     size_mw = size//4
     size_dwarf = size - size_mw
 
-    points = new_disk(
-        size_mw, box_size*5,
+    points = dist.disk(
+        size_mw, box_size,
         0, 0, 0, disk_mass, main_mass,
         vx0=0., vy0=0., vz0=0.,
         phi0=0.0, psi0=0.0)
@@ -33,15 +33,14 @@ def make_points(size, steps, box_size, time_step, cut, G):
     z0 = box_size*10
     vy0 =  0.8 * np.sqrt(((G * (total_main_mass)) / z0))
 
-    sphere_box_size = box_size
+    sphere_box_size = box_size * (14/100)
     sphere_mass = total_main_mass / 1000
     sphere_m = sphere_mass / (size_dwarf)
 
-    points += stable_sphere(
+    points += dist.stable_sphere(
         size_dwarf, sphere_box_size,
         0., 0., z0, sphere_m, sphere_mass,
-        vx=0., vy=vy0, vz=0.,
-        phi=0.0, psi=0.0)
+        vx=0., vy=vy0, vz=0.,)
 
     return points
 """

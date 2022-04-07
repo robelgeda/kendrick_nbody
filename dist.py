@@ -5,47 +5,14 @@ import random as rn
 # ">> size >> steps >> box_size >> time_step >> cut >> <fn>"
 # [x, y, z, vx, vy, vz, mass]
 
-G = 0.000864432
+G = 1
 
 def normal(phi, psi):
     v1 = np.array([cos(phi), 0, sin(phi)])
     v2 = np.array([0, cos(psi), sin(psi)])
     return np.cross(v1, v2)
 
-
-def old_disk(
-        size, box_size,
-        x0, y0, z0, disk_mass, main_mass,
-        vx0=0., vy0=0., vz0=0.,
-        phi0=0.0, thet0=0.0):
-    points = []
-
-    mass = disk_mass / size
-    dens = size / (box_size * box_size)
-    r_list = []
-    for i in range(size):
-        r = rn.uniform(0.0, box_size) + 2
-        phi = rn.uniform(0.0000001, 2.0 * pi) + phi0
-        costheta = 0.0  # rn.uniform(-1,1)
-        thet = arccos(costheta) + thet0
-
-        x = r * sin(thet) * cos(phi)
-        y = r * costheta
-        z = r * sin(thet) * sin(phi)
-
-        m0 = len(np.where(np.array(r_list) < r)[0]) * mass
-        v = 1. * np.sqrt(((G * (main_mass + m0)) / r))  # / np.sqrt(2)
-        vx = -v * sin(thet) * sin(phi)
-        vy = v * costheta
-        vz = v * sin(thet) * cos(phi)
-        line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
-        points.append(line)
-        r_list.append(r)
-
-    points[0] = [str(j) for j in [x0, y0, z0, vx0, vy0, vz0, main_mass]]
-    return points
-
-def new_disk(
+def disk(
         size, box_size,
         x0, y0, z0, disk_mass, main_mass,
         vx0=0., vy0=0., vz0=0.,
@@ -87,53 +54,9 @@ def new_disk(
     points[0] = [str(j) for j in [x0, y0, z0, vx0, vy0, vz0, main_mass]]
     return points
 
-
-def disk(points, size, box_size,
-         x, y, z, m, main_mass,
-         vx=0., vy=0., vz=0.,
-         phi=0.0, psi=0.0):
-
-    if size == 0:
-        return points
-
-    first_index = len(points)
-    n = a, b, c = normal(phi, psi)
-    dens = m*(size/(pi*box_size**2))
-
-    for i in range(size):
-        thet = rn.uniform(0.0000001, 2.0 * pi)
-
-        R = rn.uniform(1, box_size)
-
-        i = R*cos(thet)
-        j = R*sin(thet)
-
-        xi = i*cos(phi)
-        yi = j*cos(psi)
-        zi = np.sqrt( (sin(phi)**2 * i**2) + (sin(psi)**2 * j**2) )
-        zi = (-(a*xi)-(b*yi)) / c
-        
-        v = ( (G*(main_mass + dens*(R**2))) / (R+1) )**(0.5)
-        
-        vi = v*(-sin(thet))
-        vj = v*cos(thet)
-        
-        vxi = vi*cos(phi)
-        vyi = vj*cos(psi)
-        vzi = np.sqrt( (sin(phi)**2 * vi**2) + (sin(psi)**2 * vj**2) )
-        vzi = (-(a*vxi)-(b*vyi)) / c
-
-        line = [str(j) for j in [x+xi,y+yi,z+zi,vxi+vx,vyi+vy,vzi+vz, m]]
-        points.append(line)
-    
-    points[first_index] = [str(j) for j in [x, y, z, vx, vy, vz, main_mass]]
-    return points
-
-
 def stable_sphere(size, box_size,
                   x, y, z, m, main_mass,
-                  vx=0., vy=0., vz=0., 
-                  phi=0.0, psi=0.0):
+                  vx=0., vy=0., vz=0.):
     points = []
     if size == 0:
         return points
@@ -165,11 +88,10 @@ def stable_sphere(size, box_size,
     points[0] = [str(j) for j in [x, y, z, vx, vy, vz, main_mass]]
     return points
 
-def collapse_shpere(points, size, box_size,
+def collapse_shpere(size, box_size,
                     x, y, z, m,
                     vx=0., vy=0., vz=0.):
-    if size == 0:
-        return points
+    points = []
 
     for i in range(size):
         r = rn.uniform(0.0, box_size)

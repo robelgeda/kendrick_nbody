@@ -13,9 +13,14 @@
 int steps, size;
 int force_size;
 float time_step, box_size;
-float G = 0.000864432; //km3 kg-1 day-2 
 char filename[100] = "new.dat";
 //const float PI = 3.14159265359;
+
+// G
+// lyr3 / (solMass yr2)
+// klyr3 / (solMass yr2)
+float G = 1;
+
 
 ////////////////////////////////////////////////////////////////////////////
 __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float time_step)
