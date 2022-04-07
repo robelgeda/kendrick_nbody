@@ -21,10 +21,11 @@ def make_points(size, steps, box_size, time_step, cut, G):
 
     #points = [[str(j) for j in [0, 0, 0, 0, 0, 0, total_main_mass]]]
 
-    each_size = size//2
+    size_mw = size//4
+    size_dwarf = size - size_mw
 
     points = new_disk(
-        each_size, box_size*5,
+        size_mw, box_size*5,
         0, 0, 0, disk_mass, main_mass,
         vx0=0., vy0=0., vz0=0.,
         phi0=0.0, psi0=0.0)
@@ -34,10 +35,10 @@ def make_points(size, steps, box_size, time_step, cut, G):
 
     sphere_box_size = box_size
     sphere_mass = total_main_mass / 1000
-    sphere_m = sphere_mass / (each_size)
+    sphere_m = sphere_mass / (size_dwarf)
 
     points += stable_sphere(
-        each_size, sphere_box_size,
+        size_dwarf, sphere_box_size,
         0., 0., z0, sphere_m, sphere_mass,
         vx=0., vy=vy0, vz=0.,
         phi=0.0, psi=0.0)

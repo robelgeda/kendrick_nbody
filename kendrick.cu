@@ -84,10 +84,11 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 }
 
 ////////////////////////////////////////////////////////////////////////////
-int toFile(float4 *pos, float4 *vel)
+int toFile(float4 *pos, float3 *vel)
 {
 	int i;
 	float4 p;
+	float3 pv;
 
 	FILE *fx = fopen("x.dat","a");
 	FILE *fy = fopen("y.dat","a");
@@ -110,9 +111,9 @@ int toFile(float4 *pos, float4 *vel)
 			fprintf(fz, "%f\t", p.z);
 			fprintf(fm, "%f\t", p.w);
 
-			fprintf(fvx, "%f\t", pv->vx);
-			fprintf(fvy, "%f\t", pv->vy);
-			fprintf(fvz, "%f\t", pv->vz);
+			fprintf(fvx, "%f\t", pv.x);
+			fprintf(fvy, "%f\t", pv.y);
+			fprintf(fvz, "%f\t", pv.z);
 		}
 	}
 	fprintf(fx, "\n");
@@ -207,8 +208,7 @@ int main(int argc, char  ** argv)
 	}	
 	printf("%d\n",i);
 
-	toFile(Hpos);
-	printf("Transfer points\n");	
+	printf("Transfer points\n");
 	cudaMemcpy(pos, Hpos, size*sizeof(float4), cudaMemcpyHostToDevice);
 	cudaMemcpy(vel, Hvel, size*sizeof(float3), cudaMemcpyHostToDevice);
 
@@ -216,11 +216,11 @@ int main(int argc, char  ** argv)
 	///////////////////////////////////////////////////
 	printf("GPU\n");
 	int threads = 1024;
-	int blocks = (int)size;
+	int blocks = (int)(ceil(size/threads))+1;
 	dim3 grid(blocks,1);
 	dim3 block(threads,1,1);
 
-	toFile(Hpos);
+	toFile(Hpos, Hvel);
 	for(t = 0; t <= steps; t++)
 	{
 		printf("%d",t);
