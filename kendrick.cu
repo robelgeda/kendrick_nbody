@@ -19,7 +19,7 @@ char filename[100] = "new.dat";
 // G
 // lyr3 / (solMass yr2)
 // klyr3 / (solMass yr2)
-float G = 1;
+float G = 1.5607939e-22;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -50,21 +50,21 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 
     float4 pj;
 	for(j = 0; j < size; j++)
-	{	
+	{
 		pj = pos[j];
 		if(j == i || pj.w < 0)
 		{
-			continue;	
+			continue;
 		}
 
 		dx = pj.x - x;
 		dy = pj.y - y;
 		dz = pj.z - z;
 
-		r2 = (dx*dx)+(dy*dy)+(dz*dz); 
+		r2 = (dx*dx)+(dy*dy)+(dz*dz);
 		//if(r2 > 10000) continue;
 		a = ((G*pj.w)/(r2+16))/(sqrtf(r2)+4);
-	            
+
         ax += a*dx;
         ay += a*dy;
         az += a*dz;
@@ -84,7 +84,7 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 		//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
 		return;
 	}
-	
+
 	return;
 }
 
@@ -111,14 +111,14 @@ int toFile(float4 *pos, float3 *vel)
 
 		if(p.w > 0)
 		{
-			fprintf(fx, "%f\t", p.x);
-			fprintf(fy, "%f\t", p.y);
-			fprintf(fz, "%f\t", p.z);
-			fprintf(fm, "%f\t", p.w);
+			fprintf(fx, "%e\t", p.x);
+			fprintf(fy, "%e\t", p.y);
+			fprintf(fz, "%e\t", p.z);
+			fprintf(fm, "%e\t", p.w);
 
-			fprintf(fvx, "%f\t", pv.x);
-			fprintf(fvy, "%f\t", pv.y);
-			fprintf(fvz, "%f\t", pv.z);
+			fprintf(fvx, "%e\t", pv.x);
+			fprintf(fvy, "%e\t", pv.y);
+			fprintf(fvz, "%e\t", pv.z);
 		}
 	}
 	fprintf(fx, "\n");
@@ -153,8 +153,8 @@ void clearFile()
 int main(int argc, char  ** argv)
 {
 
-	int cut; // write to file evey cut iteration 
-	int t; //time 
+	int cut; // write to file evey cut iteration
+	int t; //time
 	int i; // count
 
 	///////////////////////////////////////////////////
@@ -202,22 +202,22 @@ int main(int argc, char  ** argv)
 	}
 
 	///////////////////////////////////////////////////
-	printf("Load points\n");	
+	printf("Load points\n");
 
 	float x, y, z, vx, vy, vz, m;
 	i = 0;
 	while (inFile >> x >> y >> z >> vx >> vy >> vz >> m) {
 		Hpos[i].x = x; Hpos[i].y = y;Hpos[i].z = z;Hpos[i].w = m;
 		Hvel[i].x = vx; Hvel[i].y = vy ;Hvel[i].z = vz;
-		i++;		
-	}	
+		i++;
+	}
 	printf("%d\n",i);
 
 	printf("Transfer points\n");
 	cudaMemcpy(pos, Hpos, size*sizeof(float4), cudaMemcpyHostToDevice);
 	cudaMemcpy(vel, Hvel, size*sizeof(float3), cudaMemcpyHostToDevice);
 
-	
+
 	///////////////////////////////////////////////////
 	printf("GPU\n");
 	int threads = 1024;
@@ -232,7 +232,7 @@ int main(int argc, char  ** argv)
 
 		calcForce<<<grid, block>>>(pos, vel, size, G, time_step);
 		cudaThreadSynchronize();
-		
+
 		if ((t%cut) == 0 && t != 0)
 		{
 			printf(" %d", (int)t/cut);

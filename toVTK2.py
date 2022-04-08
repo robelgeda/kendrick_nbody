@@ -1,7 +1,7 @@
 import numpy as np
 import os, math
 from sys import argv
-def vtk (fn, xi, yi, zi, ri):
+def vtk (fn, xi, yi, zi, ri, vxi, vyi, vzi):
     npoints = len(ri)
     #print(npoints)
     #try:
@@ -27,10 +27,14 @@ def vtk (fn, xi, yi, zi, ri):
 
         f.write(''+ "\n")
         f.write('POINT_DATA %d' %(npoints)+ "\n")
-        f.write('FIELD FieldData %d' %1+ "\n")
+        f.write('FIELD FieldData %d' %2+ "\n")
         f.write('Mass 1 %d double' %(npoints)+ "\n")
         for r in ri:
             f.write(str(r/50)+ "\n")
+
+        f.write('Velocity 3 %d double' % (npoints) + "\n")
+        for i in range(npoints):
+            f.write(" ".join([str(vxi[i]), str(vyi[i]), str(vzi[i])]) + "\n")
 '''except:
         os.system("rm %s.vtk" %fn)'''
 
@@ -55,6 +59,9 @@ file_name = argv[1] #input("File: ")
 x = []
 y = []
 z = []
+vx = []
+vy = []
+vz = []
 r = []
 print("x.dat")
 with open("x.dat") as f:
@@ -75,7 +82,22 @@ print("m.dat")
 with open("m.dat") as f:
     for line in f:
         r.append(np.fromstring(line, dtype = float, sep = "\t"))
-            
+
+print("vx.dat")
+with open("vx.dat") as f:
+    for line in f:
+        vx.append(np.fromstring(line, dtype = float, sep = "\t"))
+
+print("vy.dat")
+with open("vy.dat") as f:
+    for line in f:
+        vy.append(np.fromstring(line, dtype = float, sep = "\t"))
+
+print("vz.dat")
+with open("vz.dat") as f:
+    for line in f:
+        vz.append(np.fromstring(line, dtype = float, sep = "\t"))
+
 step = len(r)
 folder = file_name.replace(".dat","")
 os.system("mkdir -p %s" %folder)
@@ -86,10 +108,15 @@ for i in range(step):
     xi = x[i]
     yi = y[i]
     zi = z[i]
+
+    vxi = vx[i]
+    vyi = vy[i]
+    vzi = vz[i]
+
     ri = r[i]
     print(i, "out of", step - 1, ":", len(xi))
     tf.write(str(len(xi))+"\n")
     fn = folder+"/"+folder + str(i)
-    vtk(fn, xi, yi, zi, ri)
+    vtk(fn, xi, yi, zi, ri, vxi, vyi, vzi)
 
 print("Length: ", len(r[0]))

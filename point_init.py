@@ -10,13 +10,13 @@ except Exception as e:
     print("Distro import failed: ", str(e))
     raise e
 
-def make_points(size, steps, box_size, time_step, cut, G):
+def ot_make_points(size, steps, box_size, time_step, cut, G):
     """Edit this to init points"""
     print("Make init")
     points = []
 
-    disk_mass = 10
-    main_mass = 4
+    disk_mass = 1e10
+    main_mass = 1e12
     total_main_mass = disk_mass + main_mass
 
     #points = [[str(j) for j in [0, 0, 0, 0, 0, 0, total_main_mass]]]
@@ -30,7 +30,7 @@ def make_points(size, steps, box_size, time_step, cut, G):
         vx0=0., vy0=0., vz0=0.,
         phi0=0.0, psi0=0.0)
 
-    z0 = box_size*10
+    z0 = box_size*4
     vy0 =  0.8 * np.sqrt(((G * (total_main_mass)) / z0))
 
     sphere_box_size = box_size * (14/100)
@@ -43,43 +43,40 @@ def make_points(size, steps, box_size, time_step, cut, G):
         vx=0., vy=vy0, vz=0.,)
 
     return points
-"""
+
 def make_points(size, steps, box_size, time_step, cut, G):
     print(size, steps, box_size, time_step, cut, G)
     print("Make init")
     points = []
 
-    disk_mass = 10
-    main_mass = 200
+    main_mass = 1e10
+    disk_mass = main_mass/10000
 
     each_size = size//4
-    points = new_disk(
+    points = dist.disk(
         each_size, box_size,
         0, 0, 0, disk_mass, main_mass,
         vx0=0., vy0=0., vz0=0.,
         phi0=0.0, psi0=0.0)
 
-    x0 = box_size*3
-    vz0 =  0.7 * np.sqrt(((G * (main_mass)) / x0))
+    x0 = box_size*8
+    vz0 =  0.8 * np.sqrt(((G * (main_mass)) / x0))
 
-    points += new_disk(
+    points += dist.disk(
         each_size,  box_size,
         x0, 0, 0, disk_mass, main_mass,
-        vx0=0., vy0=0., vz0=vz0,
-        phi0=0, psi0=np.pi/4)
+        vx0=0., vy0=vz0, vz0=0,
+        phi0=0, psi0=np.pi/(2*5))
 
-    points += stable_sphere(each_size, box_size,
-                  0, x0*2, 0, disk_mass/(each_size), main_mass,
-                  vx=0., vy=0., vz=-vz0,
-                  phi=0.0, psi=0.0)
+    points += dist.stable_sphere(each_size, box_size/10,
+                  0, x0/4, 0, disk_mass/(each_size)/1000, main_mass/1000,
+                  vx=vz0*2, vy=0., vz=0,)
 
-    points += stable_sphere(size // 4, box_size,
-                            x0, -x0*8, 0, disk_mass/(each_size)*5, main_mass,
-                            vx=0., vy=vz0, vz=0.,
-                            phi=0.0, psi=0.0)
+    points += dist.stable_sphere(size // 4, box_size,
+                            -x0, +x0*4, 0, disk_mass/(each_size)/2, main_mass/2,
+                            vx=0., vy=0., vz=0.,)
 
     return points
-"""
 
 # def make_points(size, steps, box_size, time_step, cut, G):
 #     points = []

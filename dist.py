@@ -5,7 +5,7 @@ import random as rn
 # ">> size >> steps >> box_size >> time_step >> cut >> <fn>"
 # [x, y, z, vx, vy, vz, mass]
 
-G = 1
+G = 1.5607939e-22
 
 def normal(phi, psi):
     v1 = np.array([cos(phi), 0, sin(phi)])
@@ -25,7 +25,7 @@ def disk(
     dens = size / (box_size * box_size)
     r_list = []
     for i in range(size):
-        r = rn.uniform(0.0, box_size) + 10
+        r = rn.uniform(0.0, box_size) + 4
         thet = rn.uniform(0.0000001, 2.0 * pi) #+ phi0
 
         i = r * cos(thet)
@@ -36,8 +36,8 @@ def disk(
         #z = np.sqrt((sin(phi0) ** 2 * i ** 2) + (sin(psi0) ** 2 * j ** 2))
         z = (-(a * x) - (b * y)) / c
 
-        m0 = len(np.where(np.array(r_list) < r)[0]) * mass
-        v = 1. * np.sqrt(((G * (main_mass + m0)) / r))  # / np.sqrt(2)
+        m0 = 0 #len(np.where(np.array(r_list) < r)[0]) * mass
+        v = 1 * np.sqrt(((G * (main_mass + m0)) / r))  # / np.sqrt(2)
 
         vi = v * -sin(thet)
         vj = v * cos(thet)
