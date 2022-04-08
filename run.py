@@ -1,16 +1,15 @@
 import random as rn 
 from sys import argv 
-from numpy import *
 import numpy as np
 from os import system as s
+from time import time
+import datetime
 
 try:
-	from point_init import make_points
+	from point_init import make_points, G
 except Exception as e:
 	print("make_points import failed: ", str(e))
 	raise e
-
-G = 1.5607939e-22
 
 def compile(argv):
 	"""Compile Kendrick"""
@@ -23,10 +22,13 @@ def compile(argv):
 	s(command)
 
 
-def simulate(points, size, steps, box_size, time_step, cut):
+def simulate(points, size, steps, box_size, time_step, cut, run_name):
 	"""Simulate Points"""
 
 	assert len(points) == size, "{} != {}".format(len(points), size)
+
+	init_fn = run_name + "_init.txt"
+	output_fn = run_name + "_output"
 
 	with open(init_fn,"w") as f:
 		f.write(str(size)+" "+str(steps)+" "+str(box_size)+" "+str(time_step)+" "+str(cut)+"\n")
@@ -37,10 +39,17 @@ def simulate(points, size, steps, box_size, time_step, cut):
 	###########
 	# Run Sim #
 	###########
+	t_sim_start = time()
 	print("./kexe %s" %init_fn)
 	s("./kexe %s" %init_fn)
+	t_sim_end = time()
 	print("python toVTK2.py %s" %output_fn)
 	s("python toVTK2.py %s" %output_fn)
+
+	sim_run_time = t_sim_end-t_sim_start
+	time_str = str(datetime.timedelta(seconds=sim_run_time))
+	print("Run Time:", time_str)
+	print("Run Time Per Step:", sim_run_time/steps)
 
 
 if __name__ == "__main__":
@@ -52,8 +61,8 @@ if __name__ == "__main__":
 		exit()
 
 	size = int(argv[1])
-	steps = int(argv[2])
-	box_size = int(argv[3])
+	steps = int(float(argv[2]))
+	box_size = float(argv[3])
 	time_step = float(argv[4])
 	cut = int(argv[5])
 
@@ -62,11 +71,8 @@ if __name__ == "__main__":
 	else:
 		run_name = "param"
 
-	init_fn = run_name+"_init.txt"
-	output_fn = run_name + "_output"
-
 	############################################################################
 
 	points = make_points(size, steps, box_size, time_step, cut, G)
-	simulate(points, size, steps, box_size, time_step, cut)
+	simulate(points, size, steps, box_size, time_step, cut, run_name)
 

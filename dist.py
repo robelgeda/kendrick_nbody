@@ -5,7 +5,8 @@ import random as rn
 # ">> size >> steps >> box_size >> time_step >> cut >> <fn>"
 # [x, y, z, vx, vy, vz, mass]
 
-G = 1.5607939e-22
+# G = 1.5607939e-22 # klyr3 / (solMass yr2)
+G = 1.5607939e-13 # lyr3 / (solMass yr2)
 
 def normal(phi, psi):
     v1 = np.array([cos(phi), 0, sin(phi)])

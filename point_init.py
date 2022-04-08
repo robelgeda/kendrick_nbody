@@ -10,7 +10,31 @@ except Exception as e:
     print("Distro import failed: ", str(e))
     raise e
 
+G = dist.G
+
 def ot_make_points(size, steps, box_size, time_step, cut, G):
+    print(size, steps, box_size, time_step, cut, G)
+    print("Make init")
+    points = []
+
+    r = 50
+    thet = 0 # rn.uniform(0.0000001, 2.0 * pi)  # + phi0
+    phi0 = 0
+    psi0 = 0
+
+    main_mass = 1e10
+    disk_mass = main_mass/10000
+
+    v = 1 * np.sqrt(((G * (main_mass)) / r))  # / np.sqrt(2)
+
+    points.append([str(j) for j in [0, 0, 0, 0, 0, 0, main_mass]])
+    points.append([str(j) for j in [r, 0, 0, 0, v, 0, disk_mass]])
+
+
+    return points
+
+
+def ot_2make_points(size, steps, box_size, time_step, cut, G):
     """Edit this to init points"""
     print("Make init")
     points = []

@@ -17,9 +17,8 @@ char filename[100] = "new.dat";
 //const float PI = 3.14159265359;
 
 // G
-// lyr3 / (solMass yr2)
-// klyr3 / (solMass yr2)
-float G = 1.5607939e-22;
+// float G = 1.5607939e-22; // klyr3 / (solMass yr2)
+float G = 1.5607939e-13; // lyr3 / (solMass yr2)
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -78,7 +77,7 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 	vi->z = vi->z + az*time_step;
 	pi->z = pi->z + vi->z*time_step; //+ (0.5*az*(time_step*time_step));
 
-	if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1000000000000)
+	if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1e18)
 	{
 		pi->w = -1;
 		//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
@@ -228,10 +227,10 @@ int main(int argc, char  ** argv)
 	toFile(Hpos, Hvel);
 	for(t = 0; t <= steps; t++)
 	{
-		printf("%d",t);
+		//printf("%d",t);
 
 		calcForce<<<grid, block>>>(pos, vel, size, G, time_step);
-		cudaThreadSynchronize();
+		cudaDeviceSynchronize();
 
 		if ((t%cut) == 0 && t != 0)
 		{
@@ -239,9 +238,10 @@ int main(int argc, char  ** argv)
 			cudaMemcpy(Hpos, pos, size * sizeof(float4), cudaMemcpyDeviceToHost);
 			cudaMemcpy(Hvel, vel, size * sizeof(float3), cudaMemcpyDeviceToHost);
 			toFile(Hpos, Hvel);
+			printf("\n");
 		}
 
-		printf("\n");
+		//printf("\n");
 	}
 
 	return 0;
