@@ -60,9 +60,9 @@ __global__ void calcForce(float4 *pos, float3 *vel, int size, float G, float tim
 		dy = pj.y - y;
 		dz = pj.z - z;
 
-		r2 = (dx*dx)+(dy*dy)+(dz*dz);
+		r2 = (dx*dx)+(dy*dy)+(dz*dz)+16;
 		//if(r2 > 10000) continue;
-		a = ((G*pj.w)/(r2+16))/(sqrtf(r2)+4);
+		a = ((G*pj.w)/(r2))/(sqrtf(r2));
 
         ax += a*dx;
         ay += a*dy;

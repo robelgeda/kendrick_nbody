@@ -68,12 +68,12 @@ def ot_2make_points(size, steps, box_size, time_step, cut, G):
 
     return points
 
-def make_points(size, steps, box_size, time_step, cut, G):
+def make_points_ot(size, steps, box_size, time_step, cut, G):
     print(size, steps, box_size, time_step, cut, G)
     print("Make init")
     points = []
 
-    main_mass = 1e10
+    main_mass = 1.5e12
     disk_mass = main_mass/10000
 
     each_size = size//4
@@ -101,6 +101,77 @@ def make_points(size, steps, box_size, time_step, cut, G):
                             vx=0., vy=0., vz=0.,)
 
     return points
+
+
+def make_points(size, steps, box_size, time_step, cut, G):
+    print(size, steps, box_size, time_step, cut, G)
+    print("Make init")
+    points = []
+
+    disk_mass = 1e12
+    main_mass = disk_mass / 100000
+
+
+    N = 20
+    each_size = size//N
+    main_mass /= N
+    disk_mass /= N
+    total_main_mass = disk_mass + main_mass
+
+    points = []
+
+    for j in range(N//2):
+
+        r = rn.uniform(0.0, box_size)
+        phi = rn.uniform(0.0000001, 2.0 * pi)
+        costheta = rn.uniform(-1, 1)
+        thet = arccos(costheta)
+
+        xi = r * sin(thet) * cos(phi)
+        yi = r * costheta
+        zi = r * sin(thet) * sin(phi)
+
+        vy0 = 0.8 * np.sqrt(((G * (total_main_mass)) / r))
+
+        points += dist.stable_sphere(each_size, 1e4,
+                      xi, yi, zi, disk_mass/each_size, main_mass,
+                      vx=rn.uniform(0, vy0), vy=rn.uniform(0, vy0), vz=rn.uniform(0, vy0),)
+
+    # for j in range(N//2):
+    #
+    #     r = rn.uniform(0.0, box_size)
+    #     phi = 0#rn.uniform(0.0000001, 2.0 * pi)
+    #     costheta = rn.uniform(-1, 1)
+    #     thet = arccos(costheta)
+    #
+    #     xi = r * sin(thet) * cos(phi)
+    #     yi = r * costheta
+    #     zi = r * sin(thet) * sin(phi)
+    #
+    #     vy0 = 0.8 * np.sqrt(((G * (total_main_mass)) / r))
+    #
+    #     points += dist.stable_sphere(each_size, 1e4,
+    #                   xi, yi, zi, disk_mass/each_size, main_mass,
+    #                   vx=rn.uniform(0, vy0), vy=rn.uniform(0, vy0), vz=rn.uniform(0, vy0),)
+
+    N2 = size - len(points)
+    for j in range(N2):
+
+        r = rn.uniform(0.0, box_size*2)
+        phi = rn.uniform(0.0000001, 2.0 * pi)
+        costheta = rn.uniform(-1, 1)
+        thet = arccos(costheta)
+
+        xi = r * sin(thet) * cos(phi)
+        yi = r * costheta
+        zi = r * sin(thet) * sin(phi)
+
+        vy0 = 0.8 * np.sqrt(((G * (total_main_mass)) / r))
+        m = total_main_mass/ N2
+        points += [[str(j) for j in [xi,yi,zi,0,0,0, m]]]
+
+    return points
+
 
 # def make_points(size, steps, box_size, time_step, cut, G):
 #     points = []

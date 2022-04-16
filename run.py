@@ -15,6 +15,7 @@ def compile(argv):
 	"""Compile Kendrick"""
 	# command = "nvcc kendrick.cu -o x -lm -arch=compute_30 -O2"
 	command = "nvcc kendrick.cu -o kexe -lm  -O2"
+	command = "nvcc -lm kendrick.cu -o kexe"
 
 	for i in argv[2:]:
 		command = command + " " + i
