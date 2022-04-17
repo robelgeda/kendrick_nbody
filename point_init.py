@@ -103,7 +103,7 @@ def make_points_ot(size, steps, box_size, time_step, cut, G):
     return points
 
 
-def make_points(size, steps, box_size, time_step, cut, G):
+def make_points_ot(size, steps, box_size, time_step, cut, G):
     print(size, steps, box_size, time_step, cut, G)
     print("Make init")
     points = []
@@ -172,7 +172,30 @@ def make_points(size, steps, box_size, time_step, cut, G):
 
     return points
 
+def make_points(size, steps, box_size, time_step, cut, G):
+    print(size, steps, box_size, time_step, cut, G)
+    print("Make init")
+    points = []
 
+    main_mass = 1.5e12
+    disk_mass = 1e6
+
+    each_size = size #//10
+    points = dist.disk(
+        each_size, box_size,
+        0, 0, 0, disk_mass, main_mass,
+        vx0=0., vy0=0., vz0=0.,
+        phi0=0.0, psi0=0.0)
+
+    # idx = len(points)
+    # each_size = 2*size // 10
+    # points += dist.stable_sphere(each_size, box_size,
+    #                              0, 0, 0, disk_mass / (each_size), main_mass,
+    #                              vx=0, vy=0., vz=0, )
+    #
+    # points[idx] = points[idx+1]
+
+    return points
 # def make_points(size, steps, box_size, time_step, cut, G):
 #     points = []
 #

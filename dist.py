@@ -26,7 +26,7 @@ def disk(
     dens = size / (box_size * box_size)
     r_list = []
     for i in range(size):
-        r = rn.uniform(0.0, box_size) + 4
+        r = rn.uniform(0.0, box_size) + 4e3
         thet = rn.uniform(0.0000001, 2.0 * pi) #+ phi0
 
         i = r * cos(thet)
