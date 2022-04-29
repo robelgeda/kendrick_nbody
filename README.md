@@ -10,3 +10,5 @@ Kendrick is a code to perform collisionless n-body simulations. It is written in
 <img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" height="200">
 <img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" height="200">
 </p>
+
+![](https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian.gif)
