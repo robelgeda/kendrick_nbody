@@ -180,11 +180,19 @@ def make_points(size, steps, box_size, time_step, cut, G):
     main_mass = 1.5e12
     disk_mass = 1e6
 
-    each_size = size #//10
-    points = dist.disk(
+    each_size = size // 2
+    points = dist.uniform_disk(
         each_size, box_size,
         0, 0, 0, disk_mass, main_mass,
         vx0=0., vy0=0., vz0=0.,
+        phi0=0.0, psi0=0.0)
+
+    r = box_size*4
+    vy0 = 0.6 * np.sqrt(((G * (main_mass)) / r))
+    points += dist.uniform_disk(
+    each_size, box_size,
+        r, 0, 0, disk_mass, main_mass,
+        vx0=0, vy0=vy0, vz0=0.,
         phi0=0.0, psi0=0.0)
 
     # idx = len(points)

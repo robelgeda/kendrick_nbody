@@ -55,6 +55,56 @@ def disk(
     points[0] = [str(j) for j in [x0, y0, z0, vx0, vy0, vz0, main_mass]]
     return points
 
+
+def uniform_disk(
+        size, box_size,
+        x0, y0, z0, disk_mass, main_mass,
+        vx0=0., vy0=0., vz0=0.,
+        phi0=0.0, psi0=0.0):
+    points = []
+
+    n = a, b, c = normal(phi0, psi0)
+
+    mass = disk_mass / size
+    dens = size / (box_size * box_size)
+    r_list = []
+    for i in range(size):
+        r_max = box_size + 4e3
+        i_lim = r_max
+        r = np.inf
+        while r > r_max:
+            i = rn.uniform(-i_lim, i_lim)
+
+            j_lim = i_lim#np.sqrt((i_lim)**2 - i**2)
+
+            j = rn.uniform(-j_lim, j_lim)
+
+            r = np.sqrt(i**2 + j**2)
+            thet = np.arcsin(j/r) % (2*np.pi)
+
+        x = i * cos(phi0)
+        y = j * cos(psi0)
+        #z = np.sqrt((sin(phi0) ** 2 * i ** 2) + (sin(psi0) ** 2 * j ** 2))
+        z = (-(a * x) - (b * y)) / c
+
+        m0 = 0 #len(np.where(np.array(r_list) < r)[0]) * mass
+        v = 1 * np.sqrt(((G * (main_mass + m0)) / r))  # / np.sqrt(2)
+
+        vi = v * -sin(thet)
+        vj = v * cos(thet) if x > 0 else - v * cos(thet)
+
+        vx = vi * cos(phi0)
+        vy = vj * cos(psi0)
+        #vz = np.sqrt((sin(phi0) ** 2 * vi ** 2) + (sin(psi0) ** 2 * vj ** 2))
+        vz = (-(a * vx) - (b * vy)) / c
+
+        line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
+        points.append(line)
+        r_list.append(r)
+
+    points[0] = [str(j) for j in [x0, y0, z0, vx0, vy0, vz0, main_mass]]
+    return points
+
 def stable_sphere(size, box_size,
                   x, y, z, m, main_mass,
                   vx=0., vy=0., vz=0.):
