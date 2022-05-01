@@ -2,7 +2,7 @@
 
 **AST513 [S2022] Dynamics of Stellar and Planetary Systems**
 
-Kendrick is a code to perform collisionless n-body simulations. It is written in C++ and uses CUDA for GPU distribution. This project is initialized as a final project for Princeton AST513 class. 
+Kendrick (**K**inetics **E**xploration and **N**body **D**ynamics **R**esearch **I**mplementating **C**uda **K**ernel) is a code to perform collisionless n-body simulations. It is written in C++ and uses CUDA for GPU distribution. This project is initialized as a final project for Princeton AST513 class. 
 
 
 <p float="left">

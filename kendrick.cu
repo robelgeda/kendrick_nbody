@@ -22,7 +22,7 @@ float G = 1.5607939e-13; // lyr3 / (solMass yr2)
 
 
 ////////////////////////////////////////////////////////////////////////////
-__global__ void update_position(float4 *pos, float3 *vel, int size, float G, float time_step)
+__global__ void update_position(float4 *pos, float3 *vel, float3 *acc, int size, float G, float time_step)
 {
 	int i = threadIdx.x + (blockIdx.x *blockDim.x);
 	if(i >= size)
@@ -30,9 +30,21 @@ __global__ void update_position(float4 *pos, float3 *vel, int size, float G, flo
 
 	float3 *vi = &vel[i];
 	float4 *pi = &pos[i];
+	float3 *ai = &acc[i];
 
 	if(pi->w < 0)
 		return;
+
+	vi->x = vi->x + ai->x*time_step;
+	vi->y = vi->y + ai->y*time_step;
+	vi->z = vi->z + ai->z*time_step;
+
+	if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1e18)
+	{
+		pi->w = -1;
+		//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
+		return;
+	}
 
 	pi->x = pi->x + vi->x*time_step;
 	pi->y = pi->y + vi->y*time_step;
@@ -48,15 +60,15 @@ __global__ void update_position(float4 *pos, float3 *vel, int size, float G, flo
 	return;
 }
 
-__global__ void calcForce(float4 *pos, float3 *vel, float *pot,
+__global__ void calcForce(float4 *pos, float3 *acc, float *pot,
                           int size, float G, float time_step)
 {
 	int i = threadIdx.x + (blockIdx.x *blockDim.x);
 	if(i >= size)
 		return;
 
-	float3 *vi = &vel[i];
 	float4 *pi = &pos[i];
+	float3 *ai = &acc[i];
 
 	if(pi->w < 0)
 		return;
@@ -65,6 +77,7 @@ __global__ void calcForce(float4 *pos, float3 *vel, float *pot,
 	float dx, dy, dz, a;
 	float r1, r2, r3;
 	float ax, ay, az;
+	float g_wi;
 	int j;
 
 	x = pi->x;
@@ -75,6 +88,8 @@ __global__ void calcForce(float4 *pos, float3 *vel, float *pot,
     ay = 0.0;
     az = 0.0;
     pot[i] = 0;
+
+    g_wi = G * pi->w;
 
     float4 pj;
 	for(j = 0; j < size; j++)
@@ -89,7 +104,7 @@ __global__ void calcForce(float4 *pos, float3 *vel, float *pot,
 		dy = pj.y - y;
 		dz = pj.z - z;
 
-		r2 = (dx*dx)+(dy*dy)+(dz*dz)+16;
+		r2 = (dx*dx)+(dy*dy)+(dz*dz);
 		r1 = sqrtf(r2);
 		r3 = r1 * r2;
 
@@ -100,18 +115,12 @@ __global__ void calcForce(float4 *pos, float3 *vel, float *pot,
         ay += a*dy;
         az += a*dz;
 
-        pot[i] -= (G*pj.w)/(r1);
+        pot[i] -= (g_wi*pj.w)/(r1);
 	}
-	vi->x = vi->x + ax*time_step;
-	vi->y = vi->y + ay*time_step;
-	vi->z = vi->z + az*time_step;
 
-	if((pi->x*pi->x)+(pi->y*pi->y)+(pi->z*pi->z) > 1e18)
-	{
-		pi->w = -1;
-		//pi->ax = 0.0; pi->ay = 0.0; pi->az = 0.0;
-		return;
-	}
+	ai->x = ax;
+	ai->y = ay;
+	ai->z = az;
 
 	return;
 }
@@ -215,8 +224,8 @@ int main(int argc, char  ** argv)
 	cudaDeviceReset();
 
 	float4 *pos, *Hpos;
-	float3 *vel, *Hvel;
-	float *pot, *Hpot;
+	float3 *acc, *vel, *Hvel;
+	float  *pot, *Hpot;
 
 	Hpos = (float4*)malloc(sizeof(float4)*size);
 	Hvel = (float3*)malloc(sizeof(float3)*size);
@@ -249,6 +258,13 @@ int main(int argc, char  ** argv)
     	return 1;
 	}
 
+	rc = cudaMalloc((void**)&acc, size*sizeof(float3));
+	if (rc != cudaSuccess)
+	{
+    	printf("Could not allocate memory 4: %d\n", rc);
+    	return 1;
+	}
+
 	///////////////////////////////////////////////////
 	printf("Load points\n");
 
@@ -275,26 +291,29 @@ int main(int argc, char  ** argv)
 	dim3 grid(blocks,1);
 	dim3 block(threads,1,1);
 
+    calcForce<<<grid, block>>>(pos, acc, pot, size, G, time_step);
+    cudaMemcpy(Hpot, pot, size * sizeof(float),  cudaMemcpyDeviceToHost);
 	toFile(Hpos, Hvel, Hpot);
 	for(t = 0; t <= steps; t++)
 	{
 		//printf("%d",t);
 
-		calcForce<<<grid, block>>>(pos, vel, pot, size, G, time_step);
-		cudaDeviceSynchronize();
-		update_position<<<grid, block>>>(pos, vel, size, G, time_step);
+		calcForce<<<grid, block>>>(pos, acc, pot, size, G, time_step);
 		cudaDeviceSynchronize();
 
 		if ((t%cut) == 0 && t != 0)
 		{
 			printf(" %d", (int)t/cut);
-			cudaMemcpy(Hpos, pos, size * sizeof(float4), cudaMemcpyDeviceToHost);
-			cudaMemcpy(Hvel, vel, size * sizeof(float3), cudaMemcpyDeviceToHost);
 			cudaMemcpy(Hpot, pot, size * sizeof(float),  cudaMemcpyDeviceToHost);
 			toFile(Hpos, Hvel, Hpot);
+
+			cudaMemcpy(Hpos, pos, size * sizeof(float4), cudaMemcpyDeviceToHost);
+			cudaMemcpy(Hvel, vel, size * sizeof(float3), cudaMemcpyDeviceToHost);
 			printf("\n");
 		}
 
+        update_position<<<grid, block>>>(pos, vel, acc, size, G, time_step);
+		cudaDeviceSynchronize();
 		//printf("\n");
 	}
 

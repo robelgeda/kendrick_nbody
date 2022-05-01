@@ -30,7 +30,7 @@ def vtk (fn, xi, yi, zi, ri, vxi, vyi, vzi, pi):
         f.write('FIELD FieldData %d' %3+ "\n")
         f.write('Mass 1 %d double' %(npoints)+ "\n")
         for r in ri:
-            f.write(str(r/50)+ "\n")
+            f.write(str(r)+ "\n")
 
         f.write('Velocity 3 %d double' % (npoints) + "\n")
         for i in range(npoints):
