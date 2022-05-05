@@ -77,7 +77,7 @@ __global__ void calcForce(float4 *pos, float3 *acc, float *pot,
 	float dx, dy, dz, a;
 	float r1, r2, r3;
 	float ax, ay, az;
-	float g_wi;
+	//float g_wi;
 	int j;
 
 	x = pi->x;
@@ -89,7 +89,7 @@ __global__ void calcForce(float4 *pos, float3 *acc, float *pot,
     az = 0.0;
     pot[i] = 0;
 
-    g_wi = G * pi->w;
+    //g_wi = G * pi->w;
 
     float4 pj;
 	for(j = 0; j < size; j++)
@@ -115,7 +115,7 @@ __global__ void calcForce(float4 *pos, float3 *acc, float *pot,
         ay += a*dy;
         az += a*dz;
 
-        pot[i] -= (g_wi*pj.w)/(r1);
+        pot[i] -= (G*pj.w)/(r1);
 	}
 
 	ai->x = ax;
