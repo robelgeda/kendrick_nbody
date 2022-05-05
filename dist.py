@@ -204,9 +204,7 @@ def plummer(size, box_size,
 
         v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
         v = q * v_esc
-
-        v = v_esc #G*M*(r**2)*(r**2 + a**2)**(-3/2)
-
+        
         vx, vy, vz, *_ = scalar_to_sph(v)
 
         line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
