@@ -172,7 +172,7 @@ def make_points_ot(size, steps, box_size, time_step, cut, G):
 
     return points
 
-def make_points(size, steps, box_size, time_step, cut, G):
+def make_points_otm(size, steps, box_size, time_step, cut, G):
     print(size, steps, box_size, time_step, cut, G)
     print("Make init")
     points = []
@@ -228,3 +228,15 @@ def make_points(size, steps, box_size, time_step, cut, G):
 #     #                     R, 0., 0.,
 #     #                     single_mass, 100, vy=v)
 #     return points
+
+
+def make_points(size, steps, box_size, time_step, cut, G):
+    print(size, steps, box_size, time_step, cut, G)
+    print("Make init")
+    points = []
+
+    main_mass = 1e5
+    points = dist.plummer(size, box_size,
+                          x0=0, y0=0, z0=0, total_mass=main_mass,
+                          vx0=0., vy0=0., vz0=0.)
+    return points

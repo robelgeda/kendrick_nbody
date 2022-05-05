@@ -163,6 +163,55 @@ def collapse_shpere(size, box_size,
     return points
 
 
+def scalar_to_sph(r):
+    phi = rn.uniform(0.0000001, 2.0 * pi)
+
+    costheta = rn.uniform(-1, 1)
+    thet = arccos(costheta)
+
+    x = r * sin(thet) * cos(phi)
+    y = r * sin(thet) * sin(phi)
+    z = r * costheta
+
+    return x, y, z, phi, thet
+
+
+def plummer(size, box_size,
+            x0, y0, z0, total_mass,
+            vx0=0., vy0=0., vz0=0.):
+
+    a = box_size
+    M = total_mass
+
+    points = []
+    if size == 0:
+        return points
+
+    mass = M/size
+
+    for i in range(size):
+        uni_draw = np.random.uniform(0, 1)
+        r = a * (uni_draw**(-2/3) - 1)**(-1/2)
+
+        x, y, z, *_ = scalar_to_sph(r)
+
+        # Von Neumann acceptance-rejection technique
+        q = 0
+        g_of_q = 0.1
+        while g_of_q < q**2 * (1 - q**2)**3.5:
+            q = np.random.uniform(0,1)
+            g_of_q = np.random.uniform(0, 0.1)
+
+        v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
+        v = q * v_esc
+
+        vx, vy, vz, *_ = scalar_to_sph(v)
+
+        line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
+        points.append(line)
+
+    return points
+
 """
 
     for i in range(size):
