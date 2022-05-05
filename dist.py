@@ -203,7 +203,7 @@ def plummer(size, box_size,
             g_of_q = np.random.uniform(0, 0.1)
 
         v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
-        v = q * v_esc
+        v = 1 * v_esc
 
         #vx, vy, vz, *_ = scalar_to_sph(v)
         vx = v
