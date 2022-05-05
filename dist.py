@@ -163,11 +163,12 @@ def collapse_shpere(size, box_size,
     return points
 
 
-def scalar_to_sph(r):
-    phi = rn.uniform(0.0000001, 2.0 * pi)
-
-    costheta = rn.uniform(-1, 1)
-    thet = arccos(costheta)
+def scalar_to_sph(r, thet=None, phi=None):
+    if phi is None:
+        phi = rn.uniform(0.0000001, 2.0 * pi)
+    if thet is None:
+        costheta = rn.uniform(-1, 1)
+        thet = arccos(costheta)
 
     x = r * sin(thet) * cos(phi)
     y = r * sin(thet) * sin(phi)
@@ -199,16 +200,14 @@ def plummer(size, box_size,
         q = 0
         g_of_q = 0.1
         while g_of_q < q**2 * (1 - q**2)**3.5:
-            q = np.random.uniform(0.5, 1)
+            q = np.random.uniform(0.7, 1)
             g_of_q = np.random.uniform(0, 0.1)
 
         v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
-        v = 1 * v_esc
+        v = q * v_esc
 
-        #vx, vy, vz, *_ = scalar_to_sph(v)
-        vx = v
-        vy =0
-        vz =0
+        vx, vy, vz, *_ = scalar_to_sph(v)
+
         line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
         points.append(line)
 
