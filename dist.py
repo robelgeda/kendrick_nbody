@@ -199,7 +199,7 @@ def plummer(size, box_size,
         q = 0
         g_of_q = 0.1
         while g_of_q < q**2 * (1 - q**2)**3.5:
-            q = np.random.uniform(0,1)
+            q = np.random.uniform(0.5, 1)
             g_of_q = np.random.uniform(0, 0.1)
 
         v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
