@@ -174,7 +174,7 @@ def scalar_to_sph(r, thet=None, phi=None):
     y = r * sin(thet) * sin(phi)
     z = r * costheta
 
-    return x, y, z, phi, thet
+    return x, y, z, thet, phi
 
 
 def plummer(size, box_size,
@@ -194,7 +194,7 @@ def plummer(size, box_size,
         uni_draw = np.random.uniform(0, 1)
         r = a * (uni_draw**(-2/3) - 1)**(-1/2)
 
-        x, y, z, *_ = scalar_to_sph(r)
+        x, y, z, thet, phi = scalar_to_sph(r)
 
         # Von Neumann acceptance-rejection technique
         q = 0
@@ -206,7 +206,7 @@ def plummer(size, box_size,
         v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
         v = q * v_esc
 
-        vx, vy, vz, *_ = scalar_to_sph(v)
+        vx, vy, vz, *_ = scalar_to_sph(v, phi, thet )
 
         line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
         points.append(line)
