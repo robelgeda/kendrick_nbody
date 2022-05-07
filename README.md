@@ -11,5 +11,5 @@ Kendrick (**K**inetics **E**xploration and **N**body **D**ynamics **R**esearch *
 <img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" height="200">
 </p>
 
-![](https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian.gif)
+![](https://github.com/robelgeda/kendrick_nbody/blob/main/images/plummer.gif)
 ![](https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian_collision.gif)
