@@ -104,7 +104,7 @@ __global__ void calcForce(float4 *pos, float3 *acc, float *pot,
 		dy = pj.y - y;
 		dz = pj.z - z;
 
-		r2 = (dx*dx)+(dy*dy)+(dz*dz);
+		r2 = (dx*dx)+(dy*dy)+(dz*dz)+9;
 		r1 = sqrtf(r2);
 		r3 = r1 * r2;
 

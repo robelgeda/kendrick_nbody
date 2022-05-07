@@ -198,17 +198,18 @@ def plummer(size, box_size,
         # Von Neumann acceptance-rejection technique
         q = 0
         g_of_q = 0.1
-        while g_of_q < q**2 * (1 - q**2)**3.5:
-            q = np.random.uniform(0, 1)
+        while g_of_q > q**2 * (1 - q**2)**3.5:
+            q = np.random.uniform(0.1, 1)
             g_of_q = np.random.uniform(0, 0.1)
-
         v_esc = ((2*G*M)/(r**2 + a**2)**(1/2))**(1/2)
         v = q * v_esc
-        
+
         vx, vy, vz, *_ = scalar_to_sph(v)
 
         line = [str(j) for j in [x+x0, y+y0, z+z0, vx+vx0, vy+vy0, vz+vz0, mass]]
         points.append(line)
+
+    points[0] = [str(j) for j in [x0, y0, z0, vx0, vy0, vz0, mass]]
 
     return points
 
