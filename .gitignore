@@ -171,3 +171,4 @@ kexe
 *.dat
 *_init.txt
 temp/*
+*.ipynb
