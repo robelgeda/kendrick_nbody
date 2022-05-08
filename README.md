@@ -6,10 +6,12 @@ Kendrick (**K**inetics **E**xploration and **N**body **D**ynamics **R**esearch *
 
 
 <p float="left">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif" height="200">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" height="200">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" height="200">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif" width="18.5%">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" width="19%">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" width="19.5%">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian_collision.gif" width="38.5%">
 </p>
 
-![](https://github.com/robelgeda/kendrick_nbody/blob/main/images/plummer.gif)
-![](https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian_collision.gif)
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/plummer.gif" width="100%">
+
+
