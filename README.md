@@ -5,14 +5,21 @@
 Kendrick (**K**inetics **E**xploration and **N**body **D**ynamics **R**esearch **I**nvolving **C**UDA **K**ernels) is a code to perform collisionless n-body simulations. It is written in C++ and uses CUDA for GPU distribution. This project is initialized as a final project for Princeton AST513 class. 
 
 
-<p float="left">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif" width="30%"\>
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" width="30%">
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" width="30%">
+<p float="left" margin="0" padding="0">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif" width="10%"  />
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif" width="10%"  />
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif" width="10%"  />
 </p>
 
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/plummer.gif" width="100%">
+![alt-text-1](https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk_collision.gif) ![alt-text-2](https://github.com/robelgeda/kendrick_nbody/blob/main/images/disk.gif) ![alt-text-3](https://github.com/robelgeda/kendrick_nbody/blob/main/images/heavy_disk.gif width="50")
 
-<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian_collision.gif" width="100%">
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/plummer.gif" width="100%"  />
+
+<img src="https://github.com/robelgeda/kendrick_nbody/blob/main/images/keplerian_collision.gif" width="100%"  />
 
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/25423296/163456776-7f95b81a-f1ed-45f7-b7ab-8fa810d529fa.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://user-images.githubusercontent.com/25423296/163456779-a8556205-d0a5-45e2-ac17-42d089e3c3f8.png">
+  <img alt="Shows an illustrated sun in light color mode and a moon with stars in dark color mode." src="https://user-images.githubusercontent.com/25423296/163456779-a8556205-d0a5-45e2-ac17-42d089e3c3f8.png">
+</picture>
